@@ -101,6 +101,10 @@ Configuraciones de Seguridad
 |--------------------------------|--------------------------------|---------------------------------|
 | ![Pantalla de inicio de sesión](./public/images/evidencias/6.png) | ![Pantalla de registro](./public/images/evidencias/7.png) |
 
+| Registro de auditoría: Loggin  (No repudio)            |              |               |
+|--------------------------------|--------------------------------|---------------------------------|
+| ![Archivo auditoria.log](./public/images/evidencias/8.png) |
+
 ## 5. Consideraciones Finales
 ### Revisión de seguridad en todas las capas: Cliente y servidor
 Si bien Laravel sigue el patrón MVC (Modelo-Vista-Controlador), su seguridad va mucho más allá de esta estructura arquitectónica. El framework incorpora múltiples capas de protección integradas:

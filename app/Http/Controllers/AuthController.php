@@ -84,13 +84,13 @@ class AuthController extends Controller
             RateLimiter::clear($this->throttleKey($request));
             
             // Registrar el login exitoso
-            $this->logger->log("Inicio de sesión exitoso. Usuario:" . $user->username . ", usuario: " . $user->rol);
+            $this->logger->log("Inicio de sesión exitoso. Usuario:" . $user->username . ", rol: " . $user->rol . ", IP: " . $request->ip());
             /*activity()
                 ->causedBy($user)
                 ->log('Inició sesión en el sistema');
             */
             // Redireccionar según el rol
-            return $this->redirectByRole($user);
+            return $this->redirectByRole($request);
         }
 
         throw ValidationException::withMessages([
@@ -99,10 +99,10 @@ class AuthController extends Controller
     }
 
     // Método para redireccionar según el rol
-    protected function redirectByRole($user)
+    protected function redirectByRole($request)
     {
-        $this->logger->log("Redireccionamiento según el rol del usuario:" . $user->rol);
-        $redirectTo = match($user->rol) {
+        $this->logger->log("Inicio de sesión exitoso. Usuario:" . $request->user()->username . ", rol: " . $request->user()->rol . ", IP: " . $request->ip());
+        $redirectTo = match($request->user()->rol) {
             'administrador' => route('admin.dashboard'),
             'agricultor' => route('farm.dashboard'),
             'comprador' => route('buyer.dashboard'),
@@ -110,7 +110,7 @@ class AuthController extends Controller
         };
 
         return redirect()->intended($redirectTo)
-            ->with('success', '¡Bienvenido de nuevo, ' . $user->name . '!');
+            ->with('success', '¡Bienvenido de nuevo, ' . $request->user()->name . '!');
     }
 
     // Validación de formato del login
@@ -174,7 +174,7 @@ class AuthController extends Controller
 
         try {
             // Enviar email de verificación
-            event(new Registered($user));
+            event(new Registered($user));            
                            
         } catch (\Exception $e) {
             // Si hay error al enviar email, eliminar el usuario creado
@@ -198,7 +198,7 @@ class AuthController extends Controller
     public function resendVerification(Request $request)
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return $this->redirectByRole($request->user());
+            return $this->redirectByRole($request);
         }
 
         $request->user()->sendEmailVerificationNotification();
@@ -210,6 +210,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $name = Auth::user()->nombre ?? 'Usuario';
+        $this->logger->log("Cierre de sesión. Usuario:" . Auth::user()->username . ", rol: " . Auth::user()->rol . ", IP: " . $request->ip());
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
